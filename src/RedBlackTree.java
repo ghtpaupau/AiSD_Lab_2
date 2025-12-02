@@ -43,51 +43,69 @@ public class RedBlackTree {
     }
 
     private void fixInsert(RBNode z) {
+        //пока родитель красный
         while (z.getParent() != null && z.getParent().getColor() == Color.RED) {
+            //если родитель - это левый ребёнок
             if (z.getParent() == z.getParent().getParent().getLeft()) {
                 RBNode y = z.getParent().getParent().getRight();
+                //если дядя красный
+                //перекрашиваем родителя, дядю и дедушку
+                //поднимаем z вверх
                 if (y.getColor() == Color.RED) {
                     z.getParent().setColor(Color.BLACK);
                     y.setColor(Color.BLACK);
                     z.getParent().getParent().setColor(Color.RED);
                     z = z.getParent().getParent();
                 } else {
+                    //если дядя чёрный и z - это правый ребёнок
+                    //производится левый поворот, чтобы дядя стал черным и z - это левый ребенок
                     if (z == z.getParent().getRight()) {
                         z = z.getParent();
                         rotateLeft(z);
                     }
+                    //дядя чёрный и z - это левый ребёнок
+                    //перекрашиваем родителя и дедушку
+                    //производится правый поворот для балансировки
                     z.getParent().setColor(Color.BLACK);
                     z.getParent().getParent().setColor(Color.RED);
                     rotateRight(z.getParent().getParent());
                 }
             } else {
+                //дядя - это левый ребенок
                 RBNode y = z.getParent().getParent().getLeft();
+                //если дядя красный, то перекрашиваем
                 if (y.getColor() == Color.RED) {
                     z.getParent().setColor(Color.BLACK);
                     y.setColor(Color.BLACK);
                     z.getParent().getParent().setColor(Color.RED);
                     z = z.getParent().getParent();
                 } else {
+                    //z - это левый ребёнок
                     if (z == z.getParent().getLeft()) {
                         z = z.getParent();
                         rotateRight(z);
                     }
+                    //симметрично делаем левый поворот
                     z.getParent().setColor(Color.BLACK);
                     z.getParent().getParent().setColor(Color.RED);
                     rotateLeft(z.getParent().getParent());
                 }
             }
         }
+        //корень всегда черный
         this.root.setColor(Color.BLACK);
     }
 
     private void rotateLeft(RBNode x) {
         RBNode y = x.getRight();
+        //перемещаем левое поддерево y направо от x
         x.setRight(y.getLeft());
         if (y.getLeft() != NIL) {
             y.getLeft().setParent(x);
         }
+        //устанавливаем родителя y вместо x
         y.setParent(x.getParent());
+        //перепривязываем y вместо x
         if (x.getParent() == null) {
             this.root = y;
         } else if (x == x.getParent().getLeft()) {
@@ -95,6 +113,7 @@ public class RedBlackTree {
         } else {
             x.getParent().setRight(y);
         }
+        //x становится левым ребенком y
         y.setLeft(x);
         x.setParent(y);
     }
@@ -162,31 +181,39 @@ public class RedBlackTree {
             y.setColor(z.getColor());
         }
 
+        //если удалили чёрный узел, значит нарушается баланс чёрных высот, вызывается fixDelete(x)
         if (yOriginalColor == Color.BLACK) {
             fixDelete(x);
         }
     }
 
+    //балансировка после удаления
     private void fixDelete(RBNode x) {
+        //пока x чёрный и не является коренем
         while (x != this.root && x.getColor() == Color.BLACK) {
             if (x == x.getParent().getLeft()) {
                 RBNode w = x.getParent().getRight();
+                //если брат красный
+                //перекрашиваем и выполняем поворот
                 if (w.getColor() == Color.RED) {
                     w.setColor(Color.BLACK);
                     x.getParent().setColor(Color.RED);
                     rotateLeft(x.getParent());
                     w = x.getParent().getRight();
                 }
+                //если брат и оба его ребёнка чёрные
                 if (w.getLeft().getColor() == Color.BLACK && w.getRight().getColor() == Color.BLACK) {
                     w.setColor(Color.RED);
                     x = x.getParent();
                 } else {
+                    //если брат чёрный, левый ребёнок красный, правый ребенок чёрный
                     if (w.getRight().getColor() == Color.BLACK) {
                         w.getLeft().setColor(Color.BLACK);
                         w.setColor(Color.RED);
                         rotateRight(w);
                         w = x.getParent().getRight();
                     }
+                    //если брат чёрный, правый ребёнок красный
                     w.setColor(x.getParent().getColor());
                     x.getParent().setColor(Color.BLACK);
                     w.getRight().setColor(Color.BLACK);
@@ -194,6 +221,7 @@ public class RedBlackTree {
                     x = this.root;
                 }
             } else {
+                //если брат - это левый ребёнок
                 RBNode w = x.getParent().getLeft();
                 if (w.getColor() == Color.RED) {
                     w.setColor(Color.BLACK);
@@ -219,6 +247,7 @@ public class RedBlackTree {
                 }
             }
         }
+        //восстанавливаем, "корень чёрный"
         x.setColor(Color.BLACK);
     }
 
